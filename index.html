@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vikar SMS – Neurologisk Afd. N</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VikarSMS">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap');
+  :root{--bg:#0f1117;--surface:#1a1d27;--surface2:#222636;--border:#2e3347;--accent:#4f8ef7;--accent2:#3dd68c;--warn:#f7894f;--red:#f75f5f;--text:#e8eaf0;--muted:#7b8299}
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 90px;overscroll-behavior:none}
+  header{background:var(--surface);border-bottom:1px solid var(--border);padding:16px 16px 12px;position:sticky;top:0;z-index:20;display:flex;align-items:center;gap:10px}
+  header .titles{flex:1}
+  header h1{font-size:15px;font-weight:600}
+  header p{font-size:11px;color:var(--muted);margin-top:2px}
+  .badge{background:var(--accent);color:#fff;font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;margin-left:6px;vertical-align:middle}
+  .tabs{display:flex;background:var(--surface);border-bottom:1px solid var(--border);position:sticky;top:57px;z-index:19}
+  .tab{flex:1;padding:11px 0;text-align:center;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;user-select:none}
+  .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+  .page{display:none;padding:14px 14px 0}
+  .page.active{display:block}
+  .compose-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:14px}
+  .compose-box label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:8px}
+  textarea,input[type=text],select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:10px 12px;outline:none;transition:border-color .2s;appearance:none}
+  textarea{resize:vertical;min-height:80px}
+  textarea:focus,input[type=text]:focus,select:focus{border-color:var(--accent)}
+  .char-count{text-align:right;font-size:11px;color:var(--muted);margin-top:4px;font-family:'DM Mono',monospace}
+  .btn{padding:10px 14px;border-radius:10px;font-size:13px;font-weight:600;border:none;cursor:pointer;transition:opacity .15s,transform .1s;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+  .btn:active{transform:scale(.97);opacity:.8}
+  .btn-primary{background:var(--accent);color:#fff}
+  .btn-success{background:var(--accent2);color:#0f1117}
+  .btn-warn{background:var(--warn);color:#fff}
+  .btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+  .btn-full{width:100%}
+  .actions-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .actions-row .btn{flex:1;min-width:130px}
+  .section-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+  .select-all-btn{font-size:11px;font-weight:600;color:var(--accent);background:none;border:none;cursor:pointer;padding:0}
+  .vikar-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:11px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;transition:border-color .2s,background .2s;position:relative;overflow:hidden}
+  .vikar-card.selected{border-color:var(--accent);background:#1a2540}
+  .vikar-card.selected .check{background:var(--accent);border-color:var(--accent)}
+  .vikar-card.selected .check::after{display:block}
+  .check{width:22px;height:22px;border-radius:6px;border:2px solid var(--border);background:var(--surface2);flex-shrink:0;position:relative;transition:all .15s;cursor:pointer}
+  .check::after{content:'';display:none;position:absolute;left:5px;top:2px;width:6px;height:11px;border:2px solid #fff;border-top:none;border-left:none;transform:rotate(40deg)}
+  .vikar-info{flex:1;min-width:0;cursor:pointer}
+  .vikar-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .vikar-phone{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace;margin-top:2px}
+  .vikar-tag{font-size:10px;font-weight:600;padding:3px 7px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+  .tag-sygepl{background:#1e3a5f;color:#7bb8f5}
+  .tag-med{background:#1e3d2b;color:#5ed48a}
+  .tag-semu{background:#3d2b1e;color:#f5a857}
+  .tag-barsel{background:#3d1e2b;color:#f57b9e}
+  .card-actions{display:flex;gap:6px;flex-shrink:0}
+  .icon-btn{background:none;border:1px solid var(--border);border-radius:8px;padding:6px 9px;font-size:13px;cursor:pointer;transition:background .15s;line-height:1}
+  .icon-btn:active{background:var(--surface2)}
+  .icon-btn.sms{color:var(--accent)}
+  .icon-btn.edit{color:var(--warn)}
+  .icon-btn.del{color:var(--red)}
+  .bottom-bar{position:fixed;bottom:0;left:0;right:0;background:var(--surface);border-top:1px solid var(--border);padding:10px 14px;display:flex;gap:10px;align-items:center;z-index:20}
+  .selected-count{font-size:13px;font-weight:600;color:var(--muted);flex:1}
+  .selected-count span{color:var(--accent)}
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:50;align-items:flex-end;justify-content:center}
+  .modal-overlay.open{display:flex}
+  .modal{background:var(--surface);border:1px solid var(--border);border-radius:20px 20px 0 0;padding:20px 16px 30px;width:100%;max-width:500px;animation:slideUp .25s ease}
+  @keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+  .modal h2{font-size:16px;font-weight:600;margin-bottom:16px}
+  .field{margin-bottom:12px}
+  .field label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;display:block;margin-bottom:6px}
+  .modal-actions{display:flex;gap:8px;margin-top:16px}
+  .modal-actions .btn{flex:1}
+  .toast{position:fixed;top:68px;left:50%;transform:translateX(-50%) translateY(-10px);background:var(--accent2);color:#0f1117;font-size:13px;font-weight:600;padding:10px 18px;border-radius:30px;opacity:0;pointer-events:none;transition:opacity .3s,transform .3s;z-index:100;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:40px 0}
+  .empty div{font-size:32px;margin-bottom:8px}
+  .search-wrap{position:relative;margin-bottom:12px}
+  .search-wrap input{padding-left:36px}
+  .search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:15px;pointer-events:none}
+  select option{background:#1a1d27}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="titles">
+    <h1>📋 Vikar SMS <span class="badge">Neurologisk Afd. N</span></h1>
+    <p id="headerSub">Indlæser...</p>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('send')">📤 Send</div>
+  <div class="tab" onclick="switchTab('liste')">👥 Vikarliste</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="page active" id="page-send">
+  <div class="compose-box">
+    <label>✏️ Din besked</label>
+    <textarea id="msgInput" placeholder="Skriv din besked her...&#10;F.eks: Hej! Kan du arbejde torsdag d. 10/4 kl. 07-15? Mvh Neurologisk Afd. N"></textarea>
+    <div class="char-count"><span id="charCount">0</span> tegn</div>
+    <div class="actions-row">
+      <button class="btn btn-success" onclick="sendSelected()">📤 Send til valgte</button>
+      <button class="btn btn-warn" onclick="sendAll()">🔔 Send til ALLE</button>
+    </div>
+  </div>
+  <div class="section-title">
+    Vikarer
+    <button class="select-all-btn" onclick="toggleSelectAll()">Vælg alle</button>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Søg efter navn..." oninput="renderSend()">
+  </div>
+  <div id="sendList"></div>
+</div>
+
+<div class="page" id="page-liste">
+  <button class="btn btn-primary btn-full" style="margin-bottom:14px;" onclick="openAddModal()">＋ Tilføj ny vikar</button>
+  <div class="section-title">
+    Alle vikarer
+    <span id="totalCount" style="font-weight:600;color:var(--accent);">0</span>
+  </div>
+  <div id="listeList"></div>
+</div>
+
+<div class="bottom-bar" id="bottomBar">
+  <div class="selected-count"><span id="selCount">0</span> valgt</div>
+  <button class="btn btn-ghost" style="padding:9px 14px;font-size:12px;" onclick="clearSelection()">Ryd valg</button>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2 id="modalTitle">＋ Tilføj vikar</h2>
+    <div class="field"><label>Navn</label><input type="text" id="fNavn" placeholder="F.eks. Maria Carlsson"></div>
+    <div class="field"><label>Telefon (8 cifre)</label><input type="text" id="fTlf" placeholder="F.eks. 50575406" maxlength="8" inputmode="numeric"></div>
+    <div class="field">
+      <label>Type</label>
+      <select id="fType">
+        <option value="Sygepl.stud.">Sygeplejestuderende</option>
+        <option value="Medicin stud.">Medicinstuderende</option>
+        <option value="KUN Semu">KUN Semu</option>
+        <option value="KUN Semu aftenvagt">KUN Semu aftenvagt</option>
+        <option value="Vikar">Vikar</option>
+      </select>
+    </div>
+    <div class="field"><label>Dato / note (valgfri)</label><input type="text" id="fDato" placeholder="F.eks. -30/6-26 eller Barsel"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Annuller</button>
+      <button class="btn btn-primary" id="modalSaveBtn" onclick="saveVikar()">Gem</button>
+    </div>
+  </div>
+</div>
+
+<script>
+if('serviceWorker' in navigator) navigator.serviceWorker.register('./sw.js').catch(console.error);
+
+const DEFAULT_VIKARER=[
+  {id:1,navn:"Amalie Mosbæk Würtz",tlf:"29854934",type:"Sygepl.stud.",dato:"-30/6-26"},
+  {id:2,navn:"Clara Zeuthen",tlf:"60242207",type:"Sygepl.stud.",dato:"-30/6-28"},
+  {id:3,navn:"Ellen Barker",tlf:"27447719",type:"Sygepl.stud.",dato:"-30/6-27"},
+  {id:4,navn:"Kamilla Søndergaard",tlf:"50966614",type:"Sygepl.stud.",dato:"-30/6-26"},
+  {id:5,navn:"Karoline Krogh",tlf:"20293575",type:"Medicin stud.",dato:""},
+  {id:6,navn:"Laura Lindebjerg Kirt",tlf:"53620851",type:"Medicin stud.",dato:""},
+  {id:7,navn:"Lærke Grønberg Olsen",tlf:"24905828",type:"Sygepl.stud.",dato:"-31/1-28"},
+  {id:8,navn:"Maria Carlsson",tlf:"50575406",type:"Sygepl.stud.",dato:"-31/1-28"},
+  {id:9,navn:"Regitze Dohm",tlf:"29738205",type:"Sygepl.stud.",dato:"-30/6-26"},
+  {id:10,navn:"Sandra Morup Lyskjær",tlf:"30114868",type:"Sygepl.stud.",dato:"-30/6-27"},
+  {id:11,navn:"Sheyma Ahmed",tlf:"41100142",type:"Sygepl.stud.",dato:"-30/6-26"},
+  {id:12,navn:"Signe Lilleholt Jensen",tlf:"42709320",type:"Sygepl.stud.",dato:"-31/1-28"},
+  {id:13,navn:"Signe Petersen",tlf:"53347519",type:"Sygepl.stud.",dato:"Barsel"},
+  {id:14,navn:"Julie Andreasen",tlf:"60182552",type:"KUN Semu",dato:""},
+  {id:15,navn:"Lise Høj",tlf:"50555326",type:"KUN Semu aftenvagt",dato:""},
+  {id:16,navn:"Ingrid Taarnhøj",tlf:"26293162",type:"KUN Semu",dato:""}
+];
+
+let vikarer=JSON.parse(localStorage.getItem('vikarer')||'null')||DEFAULT_VIKARER.map(v=>({...v}));
+let selected=new Set();
+let editingId=null;
+let nextId=Math.max(...vikarer.map(v=>v.id),0)+1;
+
+function save(){localStorage.setItem('vikarer',JSON.stringify(vikarer));}
+
+function switchTab(tab){
+  document.querySelectorAll('.tab').forEach((t,i)=>t.classList.toggle('active',['send','liste'][i]===tab));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+tab).classList.add('active');
+  document.getElementById('bottomBar').style.display=tab==='send'?'flex':'none';
+  if(tab==='liste') renderListe();
+}
+
+function tagClass(type){
+  if(type.includes("Sygepl")) return "tag-sygepl";
+  if(type.includes("Medicin")) return "tag-med";
+  if(type.includes("Barsel")) return "tag-barsel";
+  return "tag-semu";
+}
+
+function tagLabel(v){return v.dato?v.type+' '+v.dato:v.type;}
+function fmtTlf(t){return t.replace(/(\d{2})(\d{2})(\d{2})(\d{2})/,'$1 $2 $3 $4');}
+
+function renderSend(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const filtered=vikarer.filter(v=>v.navn.toLowerCase().includes(q));
+  const list=document.getElementById('sendList');
+  if(!filtered.length){list.innerHTML='<div class="empty"><div>🔍</div>Ingen vikarer fundet</div>';return;}
+  list.innerHTML='';
+  filtered.forEach(v=>{
+    const card=document.createElement('div');
+    card.className='vikar-card'+(selected.has(v.id)?' selected':'');
+    card.innerHTML=`
+      <div class="check" onclick="toggleSelect(${v.id})"></div>
+      <div class="vikar-info" onclick="toggleSelect(${v.id})">
+        <div class="vikar-name">${v.navn}</div>
+        <div class="vikar-phone">${fmtTlf(v.tlf)}</div>
+      </div>
+      <span class="vikar-tag ${tagClass(v.type)}">${tagLabel(v)}</span>
+      <div class="card-actions">
+        <button class="icon-btn sms" onclick="sendOne(${v.id})">💬</button>
+      </div>`;
+    list.appendChild(card);
+  });
+  document.getElementById('selCount').textContent=selected.size;
+  document.getElementById('headerSub').textContent=`${vikarer.length} vikarer · ${selected.size} valgt`;
+}
+
+function renderListe(){
+  const list=document.getElementById('listeList');
+  document.getElementById('totalCount').textContent=vikarer.length;
+  if(!vikarer.length){list.innerHTML='<div class="empty"><div>👥</div>Ingen vikarer endnu</div>';return;}
+  list.innerHTML='';
+  vikarer.forEach(v=>{
+    const card=document.createElement('div');
+    card.className='vikar-card';
+    card.innerHTML=`
+      <div class="vikar-info">
+        <div class="vikar-name">${v.navn}</div>
+        <div class="vikar-phone">${fmtTlf(v.tlf)}</div>
+      </div>
+      <span class="vikar-tag ${tagClass(v.type)}">${tagLabel(v)}</span>
+      <div class="card-actions">
+        <button class="icon-btn edit" onclick="openEditModal(${v.id})">✏️</button>
+        <button class="icon-btn del" onclick="deleteVikar(${v.id})">🗑️</button>
+      </div>`;
+    list.appendChild(card);
+  });
+}
+
+function toggleSelect(id){selected.has(id)?selected.delete(id):selected.add(id);renderSend();}
+function toggleSelectAll(){selected.size===vikarer.length?selected.clear():vikarer.forEach(v=>selected.add(v.id));renderSend();}
+function clearSelection(){selected.clear();renderSend();}
+function getMsg(){return document.getElementById('msgInput').value.trim();}
+
+function buildBody(v){
+  const fornavn=v.navn.split(' ')[0];
+  const msg=getMsg();
+  const greeting=`Hej ${fornavn},`;
+  return msg ? greeting+'\n'+msg : greeting;
+}
+
+function sendOne(id){
+  const v=vikarer.find(x=>x.id===id);if(!v)return;
+  window.location.href=`sms:+45${v.tlf}?body=`+encodeURIComponent(buildBody(v));
+}
+
+function sendSelected(){
+  if(!selected.size){alert('Vælg mindst én modtager.');return;}
+  const arr=[...selected];let i=0;
+  function next(){
+    if(i>=arr.length){showToast(`✓ Åbnede SMS til ${arr.length} vikarer`);return;}
+    const v=vikarer.find(x=>x.id===arr[i++]);
+    if(v) window.location.href=`sms:+45${v.tlf}?body=`+encodeURIComponent(buildBody(v));
+    setTimeout(next,1800);
+  }
+  next();
+}
+
+function sendAll(){
+  if(!confirm(`Send besked til ALLE ${vikarer.length} vikarer?`))return;
+  let i=0;
+  function next(){
+    if(i>=vikarer.length){showToast(`✓ Åbnede SMS til alle ${vikarer.length}`);return;}
+    const v=vikarer[i++];
+    window.location.href=`sms:+45${v.tlf}?body=`+encodeURIComponent(buildBody(v));
+    setTimeout(next,1800);
+  }
+  next();
+}
+
+function openAddModal(){
+  editingId=null;
+  document.getElementById('modalTitle').textContent='＋ Tilføj vikar';
+  document.getElementById('modalSaveBtn').textContent='Tilføj';
+  document.getElementById('fNavn').value='';
+  document.getElementById('fTlf').value='';
+  document.getElementById('fType').value='Sygepl.stud.';
+  document.getElementById('fDato').value='';
+  document.getElementById('modalOverlay').classList.add('open');
+  setTimeout(()=>document.getElementById('fNavn').focus(),300);
+}
+
+function openEditModal(id){
+  const v=vikarer.find(x=>x.id===id);if(!v)return;
+  editingId=id;
+  document.getElementById('modalTitle').textContent='✏️ Rediger vikar';
+  document.getElementById('modalSaveBtn').textContent='Gem ændringer';
+  document.getElementById('fNavn').value=v.navn;
+  document.getElementById('fTlf').value=v.tlf;
+  document.getElementById('fType').value=v.type;
+  document.getElementById('fDato').value=v.dato||'';
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal(){document.getElementById('modalOverlay').classList.remove('open');}
+function closeModalOutside(e){if(e.target===document.getElementById('modalOverlay'))closeModal();}
+
+function saveVikar(){
+  const navn=document.getElementById('fNavn').value.trim();
+  const tlf=document.getElementById('fTlf').value.trim().replace(/\s/g,'');
+  const type=document.getElementById('fType').value;
+  const dato=document.getElementById('fDato').value.trim();
+  if(!navn){alert('Indtast et navn.');return;}
+  if(!/^\d{8}$/.test(tlf)){alert('Telefonnummer skal være 8 cifre.');return;}
+  if(editingId!==null){
+    const v=vikarer.find(x=>x.id===editingId);
+    if(v){v.navn=navn;v.tlf=tlf;v.type=type;v.dato=dato;}
+    showToast('✓ Ændringer gemt');
+  } else {
+    vikarer.push({id:nextId++,navn,tlf,type,dato});
+    showToast('✓ Vikar tilføjet');
+  }
+  save();closeModal();renderListe();renderSend();
+}
+
+function deleteVikar(id){
+  const v=vikarer.find(x=>x.id===id);if(!v)return;
+  if(!confirm(`Slet ${v.navn}?`))return;
+  vikarer=vikarer.filter(x=>x.id!==id);
+  selected.delete(id);
+  save();renderListe();renderSend();
+  showToast(`🗑️ ${v.navn} slettet`);
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
+
+document.getElementById('msgInput').addEventListener('input',function(){
+  document.getElementById('charCount').textContent=this.value.length;
+});
+
+renderSend();
+document.getElementById('headerSub').textContent=`${vikarer.length} vikarer`;
+</script>
+</body>
+</html>
