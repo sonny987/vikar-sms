@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vikar SMS – Neurologisk Afd. N</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1117">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="VikarSMS">
+<!-- Inline SVG icon for Apple devices -->
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@500&display=swap');
+
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #222636;
+    --border: #2e3347;
+    --accent: #4f8ef7;
+    --accent2: #3dd68c;
+    --warn: #f7894f;
+    --text: #e8eaf0;
+    --muted: #7b8299;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 0 0 80px;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 20px 14px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: 0.3px;
+  }
+
+  header p {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 20px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  section {
+    padding: 16px 16px 0;
+  }
+
+  .compose-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+
+  .compose-box label {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: block;
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 80px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  textarea:focus { border-color: var(--accent); }
+
+  .char-count {
+    text-align: right;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .actions-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    flex: 1;
+    min-width: 120px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn:active { transform: scale(0.97); opacity: 0.85; }
+
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-success { background: var(--accent2); color: #0f1117; }
+  .btn-warn    { background: var(--warn); color: #fff; }
+  .btn-ghost   { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+  .section-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .select-all-btn {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--accent);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-transform: none;
+    letter-spacing: 0;
+  }
+
+  .vikar-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .vikar-card.selected {
+    border-color: var(--accent);
+    background: #1a2540;
+  }
+
+  .vikar-card.selected .check {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .vikar-card.selected .check::after { display: block; }
+
+  .check {
+    width: 22px;
+    height: 22px;
+    border-radius: 6px;
+    border: 2px solid var(--border);
+    background: var(--surface2);
+    flex-shrink: 0;
+    position: relative;
+    transition: all 0.15s;
+  }
+
+  .check::after {
+    content: '';
+    display: none;
+    position: absolute;
+    left: 5px; top: 2px;
+    width: 6px; height: 11px;
+    border: 2px solid #fff;
+    border-top: none;
+    border-left: none;
+    transform: rotate(40deg);
+  }
+
+  .vikar-info { flex: 1; min-width: 0; }
+
+  .vikar-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .vikar-phone {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    margin-top: 2px;
+  }
+
+  .vikar-tag {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .tag-sygepl { background: #1e3a5f; color: #7bb8f5; }
+  .tag-med    { background: #1e3d2b; color: #5ed48a; }
+  .tag-semu   { background: #3d2b1e; color: #f5a857; }
+
+  .sms-btn {
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: var(--accent);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  .sms-btn:active { background: var(--surface2); }
+
+  .bottom-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 12px 16px;
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .selected-count {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--muted);
+    flex: 1;
+  }
+
+  .selected-count span { color: var(--accent); }
+
+  .toast {
+    position: fixed;
+    top: 70px; left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: var(--accent2);
+    color: #0f1117;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 10px 18px;
+    border-radius: 30px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Install banner */
+  #installBanner {
+    display: none;
+    background: linear-gradient(135deg, #1a2540, #1e3a5f);
+    border: 1px solid var(--accent);
+    border-radius: 12px;
+    padding: 12px 14px;
+    margin: 16px 16px 0;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #installBanner p {
+    flex: 1;
+    font-size: 13px;
+    color: var(--text);
+  }
+
+  #installBanner p span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📋 Vikar SMS <span class="badge">Neurologisk Afd. N</span></h1>
+  <p>Vælg modtagere og send besked</p>
+</header>
+
+<div id="installBanner">
+  <div>📲</div>
+  <p>Installer som app
+    <span>Tryk Del → "Føj til hjemmeskærm"</span>
+  </p>
+  <button class="btn btn-primary" style="flex:0;min-width:auto;padding:8px 12px;font-size:12px;" id="installBtn">Installer</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<section>
+  <div class="compose-box">
+    <label>✏️ Din besked</label>
+    <textarea id="msgInput" placeholder="Skriv din besked her...&#10;F.eks: Hej! Kan du arbejde torsdag d. 10/4 kl. 07-15? Mvh Neurologisk Afd. N"></textarea>
+    <div class="char-count"><span id="charCount">0</span> tegn</div>
+    <div class="actions-row">
+      <button class="btn btn-success" onclick="sendSelected()">📤 Send til valgte</button>
+      <button class="btn btn-warn" onclick="sendAll()">🔔 Send til ALLE</button>
+    </div>
+  </div>
+
+  <div class="section-title">
+    Vikarliste
+    <button class="select-all-btn" onclick="toggleSelectAll()" id="selectAllBtn">Vælg alle</button>
+  </div>
+
+  <div id="vikarList"></div>
+</section>
+
+<div class="bottom-bar">
+  <div class="selected-count"><span id="selCount">0</span> valgt</div>
+  <button class="btn btn-ghost" style="flex:0;padding:10px 16px;" onclick="clearSelection()">Ryd valg</button>
+</div>
+
+<script>
+// Register service worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js').catch(console.error);
+}
+
+// PWA install prompt
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  document.getElementById('installBanner').style.display = 'flex';
+});
+
+document.getElementById('installBtn').addEventListener('click', async () => {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      document.getElementById('installBanner').style.display = 'none';
+    }
+    deferredPrompt = null;
+  }
+});
+
+window.addEventListener('appinstalled', () => {
+  document.getElementById('installBanner').style.display = 'none';
+});
+
+const vikarer = [
+  { navn: "Amalie Mosbæk Würtz",  tlf: "29854934", type: "Sygepl.stud.", dato: "-30/6-26" },
+  { navn: "Clara Zeuthen",         tlf: "60242207", type: "Sygepl.stud.", dato: "-30/6-28" },
+  { navn: "Ellen Barker",          tlf: "27447719", type: "Sygepl.stud.", dato: "-30/6-27" },
+  { navn: "Kamilla Søndergaard",   tlf: "50966614", type: "Sygepl.stud.", dato: "-30/6-26" },
+  { navn: "Karoline Krogh",        tlf: "20293575", type: "Medicin stud.", dato: "" },
+  { navn: "Laura Lindebjerg Kirt", tlf: "53620851", type: "Medicin stud.", dato: "" },
+  { navn: "Lærke Grønberg Olsen",  tlf: "24905828", type: "Sygepl.stud.", dato: "-31/1-28" },
+  { navn: "Maria Carlsson",        tlf: "50575406", type: "Sygepl.stud.", dato: "-31/1-28" },
+  { navn: "Regitze Dohm",          tlf: "29738205", type: "Sygepl.stud.", dato: "-30/6-26" },
+  { navn: "Sandra Morup Lyskjær",  tlf: "30114868", type: "Sygepl.stud.", dato: "-30/6-27" },
+  { navn: "Sheyma Ahmed",          tlf: "41100142", type: "Sygepl.stud.", dato: "-30/6-26" },
+  { navn: "Signe Lilleholt Jensen",tlf: "42709320", type: "Sygepl.stud.", dato: "-31/1-28" },
+  { navn: "Signe Petersen",        tlf: "53347519", type: "Sygepl.stud.", dato: "-31/1-28", note: "Barsel" },
+  { navn: "Julie Andreasen",       tlf: "60182552", type: "KUN Semu", dato: "" },
+  { navn: "Lise Høj",              tlf: "50555326", type: "KUN Semu aftenvagt", dato: "" },
+  { navn: "Ingrid Taarnhøj",       tlf: "26293162", type: "KUN Semu", dato: "" },
+];
+
+let selected = new Set();
+
+function getTagClass(type) {
+  if (type.includes("Sygepl")) return "tag-sygepl";
+  if (type.includes("Medicin")) return "tag-med";
+  return "tag-semu";
+}
+
+function render() {
+  const list = document.getElementById('vikarList');
+  list.innerHTML = '';
+  vikarer.forEach((v, i) => {
+    const card = document.createElement('div');
+    card.className = 'vikar-card' + (selected.has(i) ? ' selected' : '');
+    card.onclick = (e) => { if (!e.target.classList.contains('sms-btn')) toggleSelect(i); };
+    const tagLabel = v.note ? v.note : v.type + (v.dato ? ' ' + v.dato : '');
+    card.innerHTML = `
+      <div class="check"></div>
+      <div class="vikar-info">
+        <div class="vikar-name">${v.navn}</div>
+        <div class="vikar-phone">${v.tlf.replace(/(\d{2})(\d{2})(\d{2})(\d{2})/, '$1 $2 $3 $4')}</div>
+      </div>
+      <span class="vikar-tag ${getTagClass(v.type)}">${tagLabel}</span>
+      <button class="sms-btn" onclick="sendOne(${i})">SMS</button>
+    `;
+    list.appendChild(card);
+  });
+  document.getElementById('selCount').textContent = selected.size;
+}
+
+function toggleSelect(i) {
+  selected.has(i) ? selected.delete(i) : selected.add(i);
+  render();
+}
+
+function toggleSelectAll() {
+  selected.size === vikarer.length ? selected.clear() : vikarer.forEach((_, i) => selected.add(i));
+  render();
+}
+
+function clearSelection() { selected.clear(); render(); }
+
+function getMsg() { return document.getElementById('msgInput').value.trim(); }
+
+function sendOne(i) {
+  const v = vikarer[i];
+  const msg = getMsg();
+  window.location.href = `sms:+45${v.tlf}${msg ? '?body=' + encodeURIComponent(msg) : ''}`;
+}
+
+function sendSelected() {
+  if (!selected.size) { alert('Vælg mindst én modtager.'); return; }
+  const msg = getMsg();
+  const arr = [...selected];
+  let i = 0;
+  function next() {
+    if (i >= arr.length) { showToast(`✓ Åbnede SMS til ${arr.length} vikarer`); return; }
+    const v = vikarer[arr[i++]];
+    window.location.href = `sms:+45${v.tlf}${msg ? '?body=' + encodeURIComponent(msg) : ''}`;
+    setTimeout(next, 1800);
+  }
+  next();
+}
+
+function sendAll() {
+  if (!confirm(`Send besked til ALLE ${vikarer.length} vikarer?`)) return;
+  const msg = getMsg();
+  let i = 0;
+  function next() {
+    if (i >= vikarer.length) { showToast(`✓ Åbnede SMS til alle ${vikarer.length}`); return; }
+    const v = vikarer[i++];
+    window.location.href = `sms:+45${v.tlf}${msg ? '?body=' + encodeURIComponent(msg) : ''}`;
+    setTimeout(next, 1800);
+  }
+  next();
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+document.getElementById('msgInput').addEventListener('input', function() {
+  document.getElementById('charCount').textContent = this.value.length;
+});
+
+render();
+</script>
+</body>
+</html>
